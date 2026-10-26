@@ -1,0 +1,179 @@
+.TH HTML2PDF-PHP 7 "2026-10-26" "html2pdf-php" "PHP extensions"
+.SH NAME
+html2pdf-php \- HTML to PDF in PHP: the html2pdf extension and its SC\eHtml2Pdf class
+.SH SYNOPSIS
+.nf
+$pdf = new SC\eHtml2Pdf(string $html, array $options = []);
+$pdf\->save(string $filename): void
+$pdf\->output(): string
+$pdf\->pageCount(): int
+.fi
+.SH DESCRIPTION
+The html2pdf extension turns HTML and CSS into a PDF, from inside PHP.
+The content is cut into pages between lines of text, images and boxes, never
+through them, under a header and over a footer with page numbers; a table of
+contents, bookmarks, working links, embedded fonts and passwords come with it.
+.PP
+There's no browser behind it: the HTML and CSS are laid out by litehtml, by
+Yuri Kobets and its contributors, and the PDF is written by simply-cpp's own
+PDF engine, as a standards-compliant PDF (ISO 32000-1, PDF 1.7).
+.PP
+The document is laid out when the object is made, so \fBpageCount\fR() is known
+straight away; \fBsave\fR() writes it to a file and \fBoutput\fR() gives it as a
+string, to send to a browser or store.
+.SH METHODS
+.TP
+\fB__construct\fR(string \fI$html\fR, array \fI$options\fR = [])
+Lays out \fI$html\fR with the options below.
+.TP
+\fBsave\fR(string \fI$filename\fR): void
+Writes the PDF to \fI$filename\fR, replacing a file of that name.
+.TP
+\fBoutput\fR(): string
+The PDF's bytes.
+.TP
+\fBpageCount\fR(): int
+How many pages it has.
+.SH OPTIONS
+Options are given by name in \fI$options\fR.
+A name it doesn't know throws, so a typo shows straight away.
+Lengths are in millimetres.
+.TP
+\fBsize\fR (string)
+The paper: A3, A4, A5, letter or legal, in any case.
+Default: A4.
+.TP
+\fBlandscape\fR (bool)
+Turn the pages sideways.
+Default: false.
+.TP
+\fBmargins\fR (array)
+Any of \fBtop\fR, \fBright\fR, \fBbottom\fR, \fBleft\fR and \fBfirst_top\fR, the
+first page's top margin (room for a letterhead; null for the same as
+\fBtop\fR).
+Default: top 10, right 10, bottom 10, left 30, first_top 60.
+.TP
+\fBheader\fR, \fBfooter\fR (string)
+HTML above and below the content of every page (see HEADERS AND FOOTERS).
+.TP
+\fBcss\fR (string)
+A stylesheet for the content, header and footer.
+.TP
+\fBbase_url\fR (string)
+What relative links, images and stylesheets are found against: a folder,
+file or URL.
+.TP
+\fBmedia\fR (string)
+The type \fB@media\fR rules match: print or screen.
+Default: print.
+.TP
+\fBtoc_page\fR (int)
+Put a table of contents on this page, pushing what was there after it; 0 for
+none.
+Default: 0.
+.TP
+\fBtoc_title\fR (string)
+The table of contents' title.
+Default: Table of Contents.
+.TP
+\fBoutline\fR (bool)
+The bookmarks a PDF reader shows: the table of contents' entries, or else the
+h1 to h3 headings.
+Default: true.
+.TP
+\fBmetadata\fR (array)
+The document's information by name: Title, Author, Subject, Keywords, Creator
+or your own.
+The title defaults to the HTML's <title>.
+.TP
+\fBuser_password\fR, \fBowner_password\fR (string)
+Encrypt the PDF: the user password opens it, and readers who use it may only
+print; the owner password allows everything.
+.TP
+\fBbuiltin_fonts\fR (bool)
+Set the text in PDF's own Helvetica, Times and Courier, which every reader
+has: nothing embedded, smaller files.
+Default: false.
+.TP
+\fBsplit_boxes\fR (bool)
+Let a box's background, border or image be cut across two pages, as browsers
+print them, instead of moving one that fits on a page to the next one whole.
+Default: false.
+.TP
+\fBdraw_margins\fR (bool)
+Outline the margins, header and footer, to check a layout.
+Default: false.
+.TP
+\fBimage_resolution\fR (float)
+PNG images are written at most about this many pixels per inch, at the
+biggest size they're shown; 0 keeps them as they are.
+Default: 150.
+.SH "HEADERS AND FOOTERS"
+In a header or footer, \fB#Page#\fR and \fB#ToPage#\fR become the page's number
+and the last page's, and \fB#section#\fR, \fB#subsection#\fR and \fB#subtitle#\fR
+the text of the last such element on or before the page.
+In a header, an element with id="P1Head" shows on the first page only, and
+one with id="POHead" on the others.
+.PP
+In the content, every <section> starts a new page and a line in the table of
+contents, and so does an element styled page\-break\-before: always;
+page\-break\-inside: avoid keeps an element on one page when it fits on one.
+.SH ERRORS
+Every failure throws an \fBSC\eException\fR (an \fBException\fR): an unknown
+option or paper size, margins or metadata that aren't an array, a negative
+toc_page, a file that can't be
+written.
+.SH EXAMPLES
+Send a PDF to the browser:
+.PP
+.RS 4
+.nf
+$pdf = new SC\eHtml2Pdf(\(aq<h1>Invoice</h1><p>Due in 30 days.</p>\(aq);
+header(\(aqContent\-Type: application/pdf\(aq);
+echo $pdf\->output();
+.fi
+.RE
+.PP
+A report with a header, page numbers and a table of contents, saved:
+.PP
+.RS 4
+.nf
+$pdf = new SC\eHtml2Pdf($html, [
+    \(aqheader\(aq   => \(aq<p>#section# \- page #Page# of #ToPage#</p>\(aq,
+    \(aqmargins\(aq  => [\(aqtop\(aq => 10, \(aqfirst_top\(aq => null],
+    \(aqtoc_page\(aq => 2,
+    \(aqmetadata\(aq => [\(aqAuthor\(aq => \(aqAccounts\(aq],
+]);
+$pdf\->save(\(aq/tmp/report.pdf\(aq);
+echo $pdf\->pageCount(), " pages\en";
+.fi
+.RE
+.SH FILES
+.TP
+.I /usr/lib/php/<api>/html2pdf.so
+The extension.
+.TP
+.I /etc/php/<version>/mods\-available/html2pdf.ini
+Loads it; the package enables it for every SAPI with \fBphpenmod\fR and
+restarts php\-fpm when it runs.
+.TP
+.I /usr/local/share/doc/html2pdf\-php/html2pdf.stub.php
+Stubs for IDEs: add the folder to PhpStorm's include path (Settings > PHP >
+Include Path) or to Intelephense's intelephense.environment.includePaths, and
+SC\eHtml2Pdf and its options autocomplete.
+.SH NOTES
+The package is built for the PHP each Ubuntu release ships (22.04: 8.1, 24.04:
+8.3, 26.04: 8.5).
+It can't be installed together with simply\-cpp\-phplib, whose sc extension
+declares the same SC\eHtml2Pdf: code written for one runs with the other.
+.SH COPYRIGHT
+Copyright 2026 Roelof Rossouw.
+.br
+Licensed under Apache\-2.0; litehtml is BSD\-3\-Clause.
+.SH "SEE ALSO"
+.BR html2pdf (1),
+the command-line program;
+.br
+https://github.com/roelofrossouw/html2pdf\-php
+.br
+https://github.com/roelofrossouw/simply\-cpp/wiki/HTML\-to\-PDF

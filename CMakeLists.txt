@@ -75,6 +75,9 @@ endif ()
 configure_file(html2pdf.ini.in html2pdf.ini @ONLY)
 # Stubs for IDEs (PhpStorm, Intelephense): what the extension declares, documented.
 install(FILES stubs/html2pdf.stub.php DESTINATION ${CMAKE_INSTALL_DATADIR}/doc/html2pdf-php)
+# man html2pdf-php: written by hand (an extension has no --help to make it from); tests/man.php
+# checks its options against the extension.
+install(FILES man/html2pdf-php.7 DESTINATION ${CMAKE_INSTALL_MANDIR}/man7)
 install(FILES LICENSE DESTINATION ${CMAKE_INSTALL_DATADIR}/doc/html2pdf-php RENAME copyright)
 install(FILES NOTICE DESTINATION ${CMAKE_INSTALL_DATADIR}/doc/html2pdf-php)
 if (HTML2PDF_PHP_INSTALL)
