@@ -1,0 +1,1 @@
+html2pdf for PHP: SC\Html2Pdf turns HTML into a PDF, with headers, footers, page numbers and a table of contents

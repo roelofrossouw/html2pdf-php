@@ -1,0 +1,3 @@
+; configuration for the html2pdf module (SC\Html2Pdf)
+; priority=30
+extension=html2pdf.so

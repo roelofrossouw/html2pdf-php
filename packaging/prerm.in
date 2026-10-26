@@ -1,0 +1,9 @@
+#!/bin/sh
+# Disables the html2pdf extension before it's removed (not on upgrade: the new one is enabled again).
+set -e
+if [ "$1" = remove ] || [ "$1" = deconfigure ]; then
+    if command -v phpdismod >/dev/null 2>&1; then
+        phpdismod -v @PHP_MINOR@ -s ALL html2pdf || true
+    fi
+fi
+exit 0
