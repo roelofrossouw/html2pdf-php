@@ -116,7 +116,8 @@ print CSS.
 An option it doesn't know throws, so a typo shows straight away. `man
 html2pdf-php` has all of this too, once it's installed, and the wiki's
 **[HTML to PDF](https://github.com/roelofrossouw/simply-cpp/wiki/HTML-to-PDF)**
-guide shows what the HTML can do.
+guide shows what the HTML can do. QR codes need no image of their own: `<img src="qr:,https://example.com/pay/123"
+style="width: 30mm">` draws one from its text.
 
 ### When something goes wrong
 
