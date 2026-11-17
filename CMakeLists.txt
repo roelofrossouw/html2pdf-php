@@ -135,4 +135,6 @@ set(CPACK_DEBIAN_PACKAGE_DEPENDS "phpapi-${PHP_API}, php${PHP_MINOR}-common, sim
 set(CPACK_DEBIAN_PACKAGE_CONFLICTS "simply-cpp-phplib")
 set(CPACK_SET_DESTDIR ON)
 set(CPACK_PACKAGE_DIRECTORY "${CMAKE_BINARY_DIR}")
+# Suite libraries by their versioned runtime packages (simply-cpp3, simply-cpp-http2): helpers 39.
+sc_versioned_depends(CPACK_DEBIAN_PACKAGE_DEPENDS)
 include(CPack)
