@@ -21,8 +21,8 @@ message(STATUS "html2pdf-php Version: ${SC_VERSION}")
 # Dependencies #
 ################
 # The extension is a thin wrapper: sc-html2pdf's shared library (its runtime package) does the work.
-find_or_install_package(sc-core simply-cpp-dev simply-cpp 2.2.0)
-find_or_install_package(sc-html2pdf simply-cpp-html2pdf-dev simply-cpp-html2pdf 1.7.0)
+find_or_install_package(sc-core simply-cpp-dev simply-cpp 3.0.0)
+find_or_install_package(sc-html2pdf simply-cpp-html2pdf-dev simply-cpp-html2pdf 2.0.0)
 
 ## PHP ##
 # An extension is built for one PHP version: the one each Ubuntu release ships (jammy 8.1, noble
@@ -130,7 +130,7 @@ set(CPACK_DEBIAN_PACKAGE_HOMEPAGE "${PROJECT_HOMEPAGE_URL}")
 # phpapi-<api> is what Ubuntu's PHP provides for its module API: the package can't go into another.
 # The modules' packages are named, not left to dpkg-shlibdeps: on a build server the libraries it
 # links are the deploys' own copies in /usr/local/lib, which no package owns.
-set(CPACK_DEBIAN_PACKAGE_DEPENDS "phpapi-${PHP_API}, php${PHP_MINOR}-common, simply-cpp (>= 2.2.0~), simply-cpp-html2pdf (>= 1.7.0~)")
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "phpapi-${PHP_API}, php${PHP_MINOR}-common, simply-cpp (>= 3.0.0~), simply-cpp-html2pdf (>= 2.0.0~)")
 # sc-phplib's sc extension declares the same classes: PHP can load only one of the two.
 set(CPACK_DEBIAN_PACKAGE_CONFLICTS "simply-cpp-phplib")
 set(CPACK_SET_DESTDIR ON)
