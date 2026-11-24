@@ -1,4 +1,4 @@
-// SC\Html2Pdf: sc-html2pdf's sc::html2pdf (libsc-html2pdf's shared library, from its package).
+// SC\Html2Pdf: sc-html2pdf's sc::html2pdf::converter (libsc-html2pdf's shared library, from its package).
 //
 //     $pdf = new SC\Html2Pdf($html, ['header' => $header, 'size' => 'A4', 'toc_page' => 2,
 //                                    'margins' => ['top' => 10, 'first_top' => 60]]);
@@ -7,6 +7,7 @@
 //
 // The options are sc::html2pdf::options by name; one it doesn't know throws, so a typo shows.
 
+#include <cstddef>
 #include "php_glue.h"
 
 #include <sc/html2pdf/html2pdf.h>
@@ -22,12 +23,12 @@ namespace {
     zend_object_handlers handlers;
 
     struct html2pdf_object {
-        sc::html2pdf *pdf;
+        sc::html2pdf::converter *pdf;
         zend_object std;
     };
 
     html2pdf_object *object_of(zend_object *object) {
-        return reinterpret_cast<html2pdf_object *>(reinterpret_cast<char *>(object) - XtOffsetOf(html2pdf_object, std));
+        return reinterpret_cast<html2pdf_object *>(reinterpret_cast<char *>(object) - offsetof(html2pdf_object, std));
     }
 
     zend_object *create(zend_class_entry *type) {
@@ -67,8 +68,8 @@ namespace {
                     "metadata", "user_password", "owner_password", "split_boxes", "draw_margins", "builtin_fonts",
                     "image_resolution"});
         sc::html2pdf::options settings;
-        if (zval *v = find(given, "size")) settings.size = sc::page_size_from(text_of(v));
-        if (zval *v = find(given, "landscape")) settings.turned = zend_is_true(v) ? sc::orientation::landscape : sc::orientation::portrait;
+        if (zval *v = find(given, "size")) settings.size = sc::graphics::page_size_from(text_of(v));
+        if (zval *v = find(given, "landscape")) settings.turned = zend_is_true(v) ? sc::graphics::orientation::landscape : sc::graphics::orientation::portrait;
         if (zval *v = find(given, "margins")) {
             HashTable *margins = array_of(v, "margins");
             check_keys(margins, "margin", {"top", "right", "bottom", "left", "first_top"});
@@ -118,7 +119,7 @@ namespace {
         return settings;
     }
 
-    sc::html2pdf &laid_out(zval *self) {
+    sc::html2pdf::converter &laid_out(zval *self) {
         auto *pdf = object_of(Z_OBJ_P(self))->pdf;
         if (!pdf) throw std::logic_error{"SC\\Html2Pdf: not constructed"};
         return *pdf;
@@ -139,7 +140,7 @@ namespace {
         ZEND_PARSE_PARAMETERS_END();
         auto *self = object_of(Z_OBJ_P(ZEND_THIS));
         sc::php::guarded([&] {
-            auto made = std::make_unique<sc::html2pdf>(sc::php::view(html), given ? options_of(given) : sc::html2pdf::options{});
+            auto made = std::make_unique<sc::html2pdf::converter>(sc::php::view(html), given ? options_of(given) : sc::html2pdf::options{});
             delete self->pdf;
             self->pdf = made.release();
         });
@@ -191,7 +192,7 @@ namespace {
         html2pdf_class = zend_register_internal_class(&type);
         html2pdf_class->create_object = create;
         std::memcpy(&handlers, zend_get_std_object_handlers(), sizeof(handlers));
-        handlers.offset = XtOffsetOf(html2pdf_object, std);
+        handlers.offset = offsetof(html2pdf_object, std);
         handlers.free_obj = free_object;
         handlers.clone_obj = nullptr; // a laid out document isn't copied
     }
